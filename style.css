@@ -154,6 +154,10 @@ main{
     width: 1px;
 }
 
+.container-sub-comments > section{
+    width: 100%;
+}
+
 .nameReplyingTo{
     font-weight: 500;
     color: var(--Moderate-blue);
@@ -198,5 +202,37 @@ main{
 }
 
 .container-send > textarea::placeholder{
+    color: var(--Grayish-Blue);
+}
+
+.container-reply{
+    background: rgb(255, 255, 255);
+    margin: 10px 10px;
+    padding: 20px 30px;
+    display: flex;
+    align-items: start;
+    gap: 20px;
+    height: 150px;
+    border-radius: 5px;
+}
+
+.container-reply > img{
+    width: 40px;
+    height: 40px;
+}
+
+.container-reply > textarea{
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--Grayish-Blue);
+    border: 1px solid var(--Light-gray);
+    border-radius: 8px;
+    resize: none;
+}
+
+.container-reply > textarea::placeholder{
     color: var(--Grayish-Blue);
 }

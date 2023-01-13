@@ -1,4 +1,4 @@
-const dataJson = JSON.parse(
+let dataJson = JSON.parse(
     JSON.stringify({
         "currentUser": {
         "image": { 
@@ -70,6 +70,7 @@ const dataJson = JSON.parse(
 );
 
 const myUserName = dataJson.currentUser.username;
+let ultimoId = 4;
 
 console.log(dataJson.comments)
 handleRenderFeed();
@@ -82,9 +83,9 @@ function handleRenderFeed(){
         Main.innerHTML += handleRenderCard(comment);
         
         if(comment.replies.length > 0){
-            Main.innerHTML += handleRenderContainerReplies();
+            Main.innerHTML += handleRenderContainerReplies(comment.id);
             for(let replie of comment.replies){
-                const ContainerReplies = document.querySelector('.sub-comments');
+                const ContainerReplies = document.querySelector(`.sub-comments-${comment.id}`);
                 ContainerReplies.innerHTML += handleRenderCard(replie, true);
             }
         }
@@ -93,70 +94,74 @@ function handleRenderFeed(){
 
 function handleRenderCard(commentData, replie = false){
     const {user, score, createdAt, content} = commentData;
-    return `<article class="card-comment">
-    
-    <div class="box-plus-minus">
-      <img class="icon-plus" src="./images/icon-plus.svg" alt="plus">
-      <p>${score}</p>
-      <img class="icon-minus" src="./images/icon-minus.svg" alt="minus">
-    </div>
-    
-    <div class="main-comment">
-      <header class="header-comment">
-        <div class="container-profile-comment">
-          <img src="${user.image.png}" alt="photo profile">
-          <p class="username-comment">${user.username}</p>
-          ${(myUserName === user.username) ? '<p class="tag-you">you</p>' : ''}
-          <p class="time-commented">${createdAt}</p>
-        </div>
-        ${
-            (myUserName === user.username) ?
-            `
-            <div class="box-edit-delete">
-                <div class="btn-comment btn-delete">
-                <img src="./images/icon-delete.svg" alt="icon reply">
-                <p>Delete</p>
-                </div>
+    return `
+    <article class="container-card-${commentData.id}">
+        <div class="card-comment">
+        
+            <div class="box-plus-minus">
+                <img class="icon-plus" src="./images/icon-plus.svg" alt="plus">
+                <p>${score}</p>
+                <img class="icon-minus" src="./images/icon-minus.svg" alt="minus">
+            </div>
+            
+            <div class="main-comment">
+                <header class="header-comment">
+                    <div class="container-profile-comment">
+                    <img src="${user.image.png}" alt="photo profile">
+                    <p class="username-comment">${user.username}</p>
+                    ${(myUserName === user.username) ? '<p class="tag-you">you</p>' : ''}
+                    <p class="time-commented">${createdAt}</p>
+                    </div>
+                    ${
+                        (myUserName === user.username) ?
+                        `
+                        <div class="box-edit-delete">
+                            <div class="btn-comment btn-delete" onClick="handleDeleteComment(${commentData.id})">
+                                <img src="./images/icon-delete.svg" alt="icon reply">
+                                <p>Delete</p>
+                            </div>
 
-                <div class="btn-comment btn-edit">
-                <img src="./images/icon-edit.svg" alt="icon reply">
-                <p>Edit</p>
-                </div>
+                            <div class="btn-comment btn-edit">
+                                <img src="./images/icon-edit.svg" alt="icon reply">
+                                <p>Edit</p>
+                            </div>
+                        </div>
+                        `:
+                        `
+                        <div class="btn-comment btn-reply" onClick="handleNewReplie(${commentData.id}, ${replie})">
+                            <img src="./images/icon-reply.svg" alt="icon reply">
+                            <p>Reply</p>
+                        </div>
+                        `
+                    }
+                </header>
+                
+                <p class="comment">
+                    ${replie ? `<span class="nameReplyingTo">@${commentData.replyingTo}</span>` : ''} ${content}
+                </p>
             </div>
-            `:
-            `
-            <div class="btn-comment btn-reply">
-                <img src="./images/icon-reply.svg" alt="icon reply">
-                <p>Reply</p>
-            </div>
-            `
-        }
-      </header>
-    
-      <p class="comment">
-        ${replie && `<span class="nameReplyingTo">@${commentData.replyingTo}</span>`} ${content}
-      </p>
-    </div>
-    </article>`;
+        </div>
+    </article>
+    `;
     
 }
 
-function handleRenderContainerReplies(){
+function handleRenderContainerReplies(id){
     return `
-    <section class="container-sub-comments">
-        <hr>
+        <section class="container-sub-comments">
+            <hr>
 
-        <section class="sub-comments">
+            <section class="sub-comments-${id}">
+            </section>
         </section>
-    </section>
     `;
 }
 
 function handleNewComment(){
     const input = document.querySelector('.container-send > textarea');
-    
+    ultimoId += 1;
     const commentData = {
-        id: dataJson.comments.length,
+        id: ultimoId,
         createdAt: "10 sec ago",
         score: 0,
         content: input.value,
@@ -175,4 +180,107 @@ function handleNewComment(){
         handleRenderFeed();
     }
     input.value = '';
+}
+
+function handleNewReplie(id, isReplie){
+
+    for(let element of dataJson.comments){
+        if(element.id === id){
+            const sla = document.querySelector(`.container-card-${id}`);
+            sla.innerHTML += `
+                <section class="container-reply">
+                    <img src="./images/avatars/image-juliusomo.png" alt="photo profile">
+                    <textarea placeholder="Add a comment..."></textarea>
+                    <!-- <button id="btn-send" onClick="handleRegisterReplie(${id}, ${isReplie}, ${element})">REPLY</button> -->
+                    <button id="btn-send" onClick="handleRegisterReplie(${id}, ${isReplie}, '${element.user.username}')">REPLY</button>
+                </section>
+            `;
+            return;
+        }
+
+        if(isReplie){
+            for(let elementReplie of element.replies){
+                if(elementReplie.id === id){
+                    const sla = document.querySelector(`.container-card-${id}`);
+                    sla.innerHTML += `
+                        <section class="container-reply">
+                            <img src="./images/avatars/image-juliusomo.png" alt="photo profile">
+                            <textarea placeholder="Add a comment..."></textarea>
+                            <!-- <button id="btn-send" onClick="handleRegisterReplie(${id}, ${isReplie}, ${element})">REPLY</button> -->
+                            <button id="btn-send" onClick="handleRegisterReplie(${id}, ${isReplie}, '${elementReplie.user.username}')">REPLY</button>
+                        </section>
+                    `;
+                    return;
+                }
+            }
+        }
+    };
+}
+
+function handleRegisterReplie( id, isReplie, replyingTo) {
+    ultimoId += 1;
+    const ContentReplie = document.querySelector('.container-reply > textarea');
+
+    const newReplieData = {
+        id: ultimoId,
+        content: ContentReplie.value,
+        createdAt: "10 sec ago",
+        score: 0,
+        replyingTo: replyingTo,
+        user: {
+            image: { 
+            png: dataJson.currentUser.image.png,
+            webp: dataJson.currentUser.image.webp
+            },
+            username: dataJson.currentUser.username
+        }
+    }
+
+    let newDataJsonComments = handleSearchCommentForIdAndAddNewCommentOrReplie(id, isReplie, newReplieData);
+    
+    document.querySelector('.container-reply').remove();
+    dataJson.comments = newDataJsonComments;
+    console.log(dataJson.comments);
+    handleRenderFeed();
+}
+
+function handleSearchCommentForIdAndAddNewCommentOrReplie(id, isReplie, newReplieData) {
+    let newDataJsonComments = dataJson.comments;
+
+    for(let i in newDataJsonComments){
+        if(newDataJsonComments[i].id === id){
+            newDataJsonComments[i].replies.push(newReplieData);
+            return newDataJsonComments;
+        }
+
+        if(isReplie){
+            for(let elementReplie of newDataJsonComments[i].replies){
+                if(elementReplie.id === id){
+                    newDataJsonComments[i].replies.push(newReplieData);
+                    return newDataJsonComments;
+                }
+            }
+        }
+    };
+}
+
+function handleDeleteComment(id){
+    for(let i in dataJson.comments){
+        if(dataJson.comments[i].id === id){
+            dataJson.comments.splice(i, 1);
+            handleRenderFeed();
+            return;
+        }
+
+
+        if(dataJson.comments[i].replies.length > 0){    
+            for(let z in dataJson.comments[i].replies){
+                if(dataJson.comments[i].replies[z].id === id){
+                    dataJson.comments[i].replies.splice(z, 1);
+                    handleRenderFeed();
+                    return;
+                }
+            }
+        }
+    }
 }
