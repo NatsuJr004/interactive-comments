@@ -2,9 +2,9 @@
 
 ![Design preview for the Interactive comments section coding challenge](./design/desktop-preview.jpg)
 
-## Welcome! 👋
+## Seja bem vindo! 👋
 
-Thanks for checking out this front-end coding challenge.
+Desafio do frontend mentor.
 
 [Frontend Mentor](https://www.frontendmentor.io) challenges help you improve your coding skills by building realistic projects.
 
